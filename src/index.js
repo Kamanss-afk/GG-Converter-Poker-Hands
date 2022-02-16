@@ -3,8 +3,8 @@ import stream from 'stream';
 import path from 'path';
 import os from 'os';
 
-import { progressBar } from './utils/progressbar.js';
-import { createfileSync } from './utils/createfile.js';
+import { progressBar } from './utils/progress-bar.js';
+import { createfileSync } from './utils/create-file.js';
 import { stringTransformer } from './utils/transformer-string.js';
 import { log } from './utils/logger.js'
 
