@@ -10,8 +10,6 @@
   "author": "Dima Hmurchik",
   "license": "ISC",
   "dependencies": {
-    "ansi-colors": "^4.1.1",
-    "cli-progress": "^3.10.0",
     "pino": "^7.8.0",
     "pino-pretty": "^7.5.1"
   }

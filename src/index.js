@@ -1,45 +1,57 @@
 import fs from 'fs';
-import stream from 'stream';
+import stream, { pipeline } from 'stream';
 import path from 'path';
 import os from 'os';
 
-import { progressBar } from './utils/progress-bar.js';
-import { createfileSync } from './utils/create-file.js';
 import { stringTransformer } from './utils/transformer-string.js';
 import { log } from './utils/logger.js'
 
-const srcPath = process.argv[2];
-const destPath = path.join(os.homedir(), 'Desktop/result.txt');
+let srcPath = process.argv[2];
 
-const main = () => {
+const main = async () => {
   try {
     if(!fs.existsSync(srcPath)) throw new Error('The file on the specified path does not exist!');
-
-    createfileSync(destPath);
-
-    progressBar.start(fs.statSync(srcPath).size, 0);
-
-    const readStream = fs.createReadStream(srcPath);
-    const writeStream = fs.createWriteStream(destPath);
+      
+    const srcFiles = fs
+      .readdirSync(srcPath)
+      .filter(fileName => fileName.match(/.txt/g))
+      .map(fileName => [srcPath, fileName].join('/').replace(/\\\\/g, '/'));
     
-    const transformStream = new stream.Transform({
-      transform(buffer, encoding, done) {
-        const lines = buffer.toString().split('\n');
-        const transformedChunkAsString = stringTransformer(lines).join('\n');
-        const transformedBuffer = Buffer.from(transformedChunkAsString);
-        this.push(transformedBuffer); 
-        done();
+    if(!srcFiles.length) throw new Error('The directory does not contain files!');
+
+    const destPath = path.join(os.homedir(), 'Desktop', 'ResultHands');
+    fs.mkdirSync(destPath);
+
+    log.warn(`The file processing process has started! Please wait...`);
+
+    for (const file of srcFiles) {
+      try {
+        const readStream = fs.createReadStream(file);
+        const writeStream = fs.createWriteStream(path.join(destPath, file.split('/').pop()));
+        
+        const transformStream = new stream.Transform({
+          transform(buffer, encoding, done) {
+            const lines = buffer.toString().split('\n');
+            const transformedChunkAsString = stringTransformer(lines).join('\n');
+            const transformedBuffer = Buffer.from(transformedChunkAsString);
+            this.push(transformedBuffer); 
+            done();
+          }
+        });
+
+        pipeline(readStream, transformStream, writeStream, () => {})
+          .on('error', error => { throw new Error(error) })
+          .on('finish', () => {
+            log.info('--> Files processed successfully! <--');
+            process.exit();
+          })
+        
+      } catch(error) {
+        throw new Error(`Error: ${file}`);
       }
-    });
-    
-    readStream.on('data', () => progressBar.update(readStream.bytesRead));
-    readStream.on('close', () => log.info(`The file was successfully created: ${destPath}`));
-    readStream.on('error', error => log.error(error));
-    
-    writeStream.on('error', error => log.error(error));
-    transformStream.on('error', () => log.error(error));
-    
-    readStream.pipe(transformStream).pipe(writeStream);
+
+    };
+
   } catch (error) {
     log.error(`[MAIN] -> Error: ${error}`);
   }
