@@ -1,6 +1,6 @@
 ## Description
 A simple GG Pokerok hand history handler for Hand2Note.\
-The script takes the path to the folder with the hand history files and creates a final "ResultHands" folder on the desktop..\
+The script takes the path to the folder with the hand history files and creates a final "ResultHands" folder on the desktop.\
 
 ## Software requirements
 - npm
