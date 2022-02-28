@@ -1,7 +1,6 @@
 ## Description
 A simple GG Pokerok hand history handler for Hand2Note.\
-The script accepts one .txt file. And return one processed .txt file.\
-Join .txt files: https://www.wikihow.com/Merge-Text-(.Txt)-Files-in-Command-Prompt
+The script takes the path to the folder with the hand history files and creates a final "ResultHands" folder on the desktop..\
 
 ## Software requirements
 - npm
@@ -21,5 +20,5 @@ npm install
 ## Run project
 ```
 cd <PROJECT FOLDER>
-npm start <THE PATH TO THE FILE WITH HANDS HISTORY>
+npm start <THE PATH TO THE FOLDER WITH HANDS HISTORY>
 ```
